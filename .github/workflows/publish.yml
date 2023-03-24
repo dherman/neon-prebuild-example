@@ -1,0 +1,98 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - v*.*.*
+      - v*.*
+      - v*
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      include: ${{ steps.define.outputs.include }}
+    steps:
+      - name: Define Cross-Compilation Target Matrix
+        id: define
+        uses: dherman/target-matrix@v0.0.2
+        with:
+          toolchain: rust
+          windows-latest: x86_64-pc-windows-msvc
+          macos-latest: x86_64-apple-darwin
+          ubuntu-latest: x86_64-unknown-linux-gnu
+
+  build:
+    needs: matrix
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.matrix.outputs.include) }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Setup Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+      - name: Install cross-rs
+        uses: actions-rs/install@v0.1.2
+        with:
+          crate: cross
+          version: latest
+      - name: Build Artifact
+        run: cross build --target ${{ matrix.target }} --message-format=json-render-diagnostics > build.log
+      # - name: Get artifact path
+      #   id: artifact
+      #   uses: dherman/cargo-artifact@v1
+      #   with:
+      #     log: build.log
+      #     name: neon-prebuild-example
+      #     crate_type: cdylib
+      - name: Extract artifact path
+        # Ensure consistent command string syntax even in Windows.
+        shell: bash
+        # Normalize path separators and strip any absolute path prefix.
+        run: cat build.log | jq -r 'select(.target != null).filenames[0] | gsub("\\\\"; "/") | sub(".*/target/"; "target/")' > artifact.log
+      - name: Create unix tarball
+        shell: bash
+        run: |
+          cp $(cat artifact.log) ./index.${{ matrix.target }}.node
+          tar czf index.${{ matrix.target }}.node.tar.gz ./index.${{ matrix.target }}.node
+          rm ./index.${{ matrix.target }}.node
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: index.${{ matrix.target }}.node.tar.gz
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Get tag name
+        uses: olegtarasov/get-tag@v2.1.2
+        id: tagName
+      - name: Hello
+        run: |
+          echo "Now let's download '${{ steps.tagName.outputs.tag }}'"
+      - name: Fetch releases
+        uses: robinraju/release-downloader@v1.7
+        with:
+          tag: ${{ steps.tagName.outputs.tag }}
+          fileName: "*.tar.gz"
+          out-file-path: assets
+      - name: Create bundle
+        run: tar czf ../libsuper-duper-adder.tar.gz *.tar.gz
+        working-directory: assets
+      - name: Publish bundle
+        uses: softprops/action-gh-release@v1
+        with:
+          files: libsuper-duper-adder.tar.gz

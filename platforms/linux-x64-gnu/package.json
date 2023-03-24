@@ -1,0 +1,12 @@
+{
+    "name": "@neon-prebuild-example/linux-x64-gnu",
+    "version": "0.0.1",
+    "os": ["linux"],
+    "cpu": ["x64"],
+    "main": "index.node",
+    "license": "MIT",
+    "engines": {
+      "node": ">=16"
+    }
+  }
+  

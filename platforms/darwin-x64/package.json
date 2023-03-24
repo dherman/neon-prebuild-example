@@ -1,0 +1,12 @@
+{
+    "name": "@neon-prebuild-example/darwin-x64",
+    "version": "0.0.1",
+    "os": ["darwin"],
+    "cpu": ["x64"],
+    "main": "index.node",
+    "license": "MIT",
+    "engines": {
+      "node": ">=16"
+    }
+  }
+  

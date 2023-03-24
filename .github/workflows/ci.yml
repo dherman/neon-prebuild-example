@@ -1,0 +1,33 @@
+name: neon-prebuild-example
+
+on:
+  push:
+    # Prevent duplicate runs of this workflow on our own internal PRs.
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Setup Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: npm
+      - name: Build
+        run: npm run build
+      - name: Test
+        run: npm test
