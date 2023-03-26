@@ -1,5 +1,11 @@
 name: publish
 
+env:
+  PACKAGE_NAME: neon-prebuild-example
+  PREBUILD_SCOPE: neon-prebuild-example
+  NODE_VERSION: 18.x
+  NODE_REGISTRY: 'https://registry.npmjs.org'
+
 on:
   push:
     tags:
@@ -13,7 +19,7 @@ jobs:
     outputs:
       include: ${{ steps.define.outputs.include }}
     steps:
-      - name: Define Cross-Compilation Target Matrix
+      - name: Define Target Matrix
         id: define
         uses: dherman/target-matrix@v0.0.2
         with:
@@ -21,6 +27,29 @@ jobs:
           windows-latest: x86_64-pc-windows-msvc
           macos-latest: x86_64-apple-darwin
           ubuntu-latest: x86_64-unknown-linux-gnu
+
+  pack:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: $NODE_VERSION
+          cache: npm
+      - name: Pack Prebuild
+        run: |
+          mkdir -p assets
+          npm pack --json=true --pack-destination=assets > assets/$PACKAGE_NAME.json
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            assets/$PACKAGE_NAME.tgz
+            assets/$PACKAGE_NAME.json
 
   build:
     needs: matrix
@@ -33,7 +62,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: Setup Toolchain
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: $NODE_VERSION
+          cache: npm
+      - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -44,8 +78,27 @@ jobs:
         with:
           crate: cross
           version: latest
+      - name: Determine Node Platform
+        id: platform
+        shell: bash
+        run: |
+          case "${{ matrix.target }}" in
+            x86_64-pc-windows-msvc)
+              echo "name=win32-x64-msvc" >> $GITHUB_OUTPUT
+              ;;
+            x86_64-apple-darwin)
+              echo "name=darwin-x64" >> $GITHUB_OUTPUT
+              ;;
+            x86_64-unknown-linux-gnu)
+              echo "name=linux-x64-gnu" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "error: unknown Rust target \"${{ matrix.target }}\""
+              exit 1
+              ;;
+          esac
       - name: Build Artifact
-        run: cross build --target ${{ matrix.target }} --message-format=json-render-diagnostics > build.log
+        run: cross build --target ${{ matrix.target }} --release --message-format=json-render-diagnostics > build.log
       # - name: Get artifact path
       #   id: artifact
       #   uses: dherman/cargo-artifact@v1
@@ -54,45 +107,62 @@ jobs:
       #     name: neon-prebuild-example
       #     crate_type: cdylib
       - name: Extract artifact path
+        id: artifact
         # Ensure consistent command string syntax even in Windows.
         shell: bash
         # Normalize path separators and strip any absolute path prefix.
-        run: cat build.log | jq -r 'select(.target != null).filenames[0] | gsub("\\\\"; "/") | sub(".*/target/"; "target/")' > artifact.log
-      - name: Create unix tarball
+        run: cat build.log | jq -r 'select(.target.kind[0]=="cdylib").filenames[0] | gsub("\\\\"; "/") | sub(".*/target/"; "path=target/")' > $GITHUB_OUTPUT
+      - name: Pack Prebuild
         shell: bash
         run: |
-          cp $(cat artifact.log) ./index.${{ matrix.target }}.node
-          tar czf index.${{ matrix.target }}.node.tar.gz ./index.${{ matrix.target }}.node
-          rm ./index.${{ matrix.target }}.node
+          mkdir -p assets
+          cp ${{ steps.artifact.outputs.path }} platforms/${{ steps.platform.outputs.name }}/index.node
+          cd platforms/${{ steps.platform.outputs.name }}
+          npm pack --json=true --pack-destination=../../assets > ../../pack.json
+          cd ../../assets
+          mv $(ls *.tgz) prebuild-${{ matrix.target }}.tgz
+          cat pack.json | jq '.[0].filename = "prebuild-${{ matrix.target }}.tgz"' > prebuild-${{ matrix.target }}.json
+          rm pack.json
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: index.${{ matrix.target }}.node.tar.gz
+          files: |
+            assets/prebuild-${{ matrix.target }}.tgz
+            assets/prebuild-${{ matrix.target }}.json
 
   publish:
-    needs: build
+    needs: [pack, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: startsWith(github.ref, 'refs/tags/')
     steps:
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: $NODE_VERSION
+          registry-url: $NODE_REGISTRY
+          cache: npm
       - name: Get tag name
         uses: olegtarasov/get-tag@v2.1.2
         id: tagName
       - name: Hello
         run: |
           echo "Now let's download '${{ steps.tagName.outputs.tag }}'"
-      - name: Fetch releases
+      - name: Fetch packages
         uses: robinraju/release-downloader@v1.7
         with:
           tag: ${{ steps.tagName.outputs.tag }}
-          fileName: "*.tar.gz"
-          out-file-path: assets
-      - name: Create bundle
-        run: tar czf ../libsuper-duper-adder.tar.gz *.tar.gz
-        working-directory: assets
-      - name: Publish bundle
-        uses: softprops/action-gh-release@v1
+          fileName: "*.tgz"
+      - name: Fetch metadata
+        uses: robinraju/release-downloader@v1.7
         with:
-          files: libsuper-duper-adder.tar.gz
+          tag: ${{ steps.tagName.outputs.tag }}
+          fileName: "*.json"
+      - name: Publish prebuilds
+        run: |
+          pwd
+          ls
+          for p in prebuild-*.tgz; do
+            echo "npm publish $p"
+          done
+          echo "npm publish $PACKAGE_NAME.tgz"
