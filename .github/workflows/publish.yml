@@ -118,9 +118,13 @@ jobs:
           mkdir -p assets
           cp ${{ steps.artifact.outputs.path }} platforms/${{ steps.platform.outputs.name }}/index.node
           cd platforms/${{ steps.platform.outputs.name }}
-          npm pack --json=true --pack-destination=../../assets > ../../pack.json
+          npm pack --json=true --pack-destination=../../assets > ../../assets/pack.json
           cd ../../assets
+          echo BEFORE RENAME
+          ls
           mv $(ls *.tgz) prebuild-${{ matrix.target }}.tgz
+          echo AFTER RENAME
+          ls
           cat pack.json | jq '.[0].filename = "prebuild-${{ matrix.target }}.tgz"' > prebuild-${{ matrix.target }}.json
           rm pack.json
       - name: Release
