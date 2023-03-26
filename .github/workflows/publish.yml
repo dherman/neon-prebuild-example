@@ -168,16 +168,13 @@ jobs:
         with:
           tag: ${{ steps.tagName.outputs.tag }}
           fileName: "*.tgz"
-      - name: Fetch metadata
-        uses: robinraju/release-downloader@v1.7
-        with:
-          tag: ${{ steps.tagName.outputs.tag }}
-          fileName: "*.json"
+          out-file-path: assets
       - name: Get package version
         id: version
         run: echo "number=$(cat package.json | jq -r .version)" > $GITHUB_OUTPUT
       - name: Publish prebuilds
         run: |
+          cd assets
           pwd
           ls
           for p in ${{ env.PACKAGE_NAME }}-*-${{ steps.version.outputs.number }}.tgz; do
