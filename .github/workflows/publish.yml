@@ -43,15 +43,22 @@ jobs:
       - name: Pack Prebuild
         run: |
           mkdir -p assets
-          npm pack --json=true --pack-destination=assets > assets/${{ env.PACKAGE_NAME }}.json
-          ls assets
+          npm pack --json=true --pack-destination=assets > assets/pack.log
+          cd assets
+          echo BEFORE RENAME
+          ls
+          tarball=$(ls *.tgz)
+          json="${tarball%.tgz}.json"
+          mv pack.log $json
+          echo AFTER RENAME
+          ls
           echo "PACKAGE_NAME=${{ env.PACKAGE_NAME }}"
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            assets/${{ env.PACKAGE_NAME }}.tgz
-            assets/${{ env.PACKAGE_NAME }}.json
+            assets/*.tgz
+            assets/*.json
 
   build:
     needs: matrix
