@@ -171,6 +171,6 @@ jobs:
           pwd
           ls
           for p in ${{ env.PACKAGE_NAME }}-*-${{ steps.version.outputs.number }}.tgz; do
-            npm publish --public $p
+            npm publish --access public $p
           done
           npm publish ${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.number }}.tgz
