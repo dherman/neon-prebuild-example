@@ -44,6 +44,8 @@ jobs:
         run: |
           mkdir -p assets
           npm pack --json=true --pack-destination=assets > assets/${{ env.PACKAGE_NAME }}.json
+          ls assets
+          echo "PACKAGE_NAME=${{ env.PACKAGE_NAME }}"
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -122,17 +124,17 @@ jobs:
           cd ../../assets
           echo BEFORE RENAME
           ls
-          mv $(ls *.tgz) prebuild-${{ matrix.target }}.tgz
+          mv $(ls *.tgz) ${{ env.PACKAGE_NAME }}-${{ matrix.target }}.tgz
           echo AFTER RENAME
           ls
-          cat pack.json | jq '.[0].filename = "prebuild-${{ matrix.target }}.tgz"' > prebuild-${{ matrix.target }}.json
+          cat pack.json | jq '.[0].filename = "${{ env.PACKAGE_NAME }}-${{ matrix.target }}.tgz"' > ${{ env.PACKAGE_NAME }}-${{ matrix.target }}.json
           rm pack.json
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            assets/prebuild-${{ matrix.target }}.tgz
-            assets/prebuild-${{ matrix.target }}.json
+            assets/${{ env.PACKAGE_NAME }}-${{ matrix.target }}.tgz
+            assets/${{ env.PACKAGE_NAME }}-${{ matrix.target }}.json
 
   publish:
     needs: [pack, build]
@@ -140,6 +142,8 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
       - name: Install Node
         uses: actions/setup-node@v3
         with:
@@ -166,7 +170,7 @@ jobs:
         run: |
           pwd
           ls
-          for p in prebuild-*.tgz; do
-            echo "npm publish $p"
+          for p in ${{ env.PACKAGE_NAME }}-*.tgz; do
+            echo "npm publish --public $p"
           done
           echo "npm publish ${{ env.PACKAGE_NAME }}.tgz"

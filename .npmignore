@@ -3,3 +3,4 @@ platforms
 Cargo.lock
 Cargo.toml
 assets
+.github
