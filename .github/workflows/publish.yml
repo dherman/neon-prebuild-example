@@ -38,18 +38,18 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: $NODE_VERSION
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - name: Pack Prebuild
         run: |
           mkdir -p assets
-          npm pack --json=true --pack-destination=assets > assets/$PACKAGE_NAME.json
+          npm pack --json=true --pack-destination=assets > assets/${{ env.PACKAGE_NAME }}.json
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            assets/$PACKAGE_NAME.tgz
-            assets/$PACKAGE_NAME.json
+            assets/${{ env.PACKAGE_NAME }}.tgz
+            assets/${{ env.PACKAGE_NAME }}.json
 
   build:
     needs: matrix
@@ -65,7 +65,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: $NODE_VERSION
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -139,8 +139,8 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: $NODE_VERSION
-          registry-url: $NODE_REGISTRY
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: ${{ env.NODE_REGISTRY }}
           cache: npm
       - name: Get tag name
         uses: olegtarasov/get-tag@v2.1.2
@@ -165,4 +165,4 @@ jobs:
           for p in prebuild-*.tgz; do
             echo "npm publish $p"
           done
-          echo "npm publish $PACKAGE_NAME.tgz"
+          echo "npm publish ${{ env.PACKAGE_NAME }}.tgz"
