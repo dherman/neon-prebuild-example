@@ -45,14 +45,9 @@ jobs:
           mkdir -p assets
           npm pack --json=true --pack-destination=assets > assets/pack.log
           cd assets
-          echo BEFORE RENAME
-          ls
           tarball=$(ls *.tgz)
           json="${tarball%.tgz}.json"
           mv pack.log $json
-          echo AFTER RENAME
-          ls
-          echo "PACKAGE_NAME=${{ env.PACKAGE_NAME }}"
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -129,13 +124,9 @@ jobs:
           cd platforms/${{ steps.platform.outputs.name }}
           npm pack --json=true --pack-destination=../../assets > ../../assets/pack.log
           cd ../../assets
-          echo BEFORE RENAME
-          ls
           tarball=$(ls *.tgz)
           json="${tarball%.tgz}.json"
           mv pack.log $json
-          echo AFTER RENAME
-          ls
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -173,11 +164,13 @@ jobs:
         id: version
         run: echo "number=$(cat package.json | jq -r .version)" > $GITHUB_OUTPUT
       - name: Publish prebuilds
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd assets
           pwd
           ls
           for p in ${{ env.PACKAGE_NAME }}-*-${{ steps.version.outputs.number }}.tgz; do
-            echo "npm publish --public $p"
+            npm publish --public $p
           done
-          echo "npm publish ${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.number }}.tgz"
+          npm publish ${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.number }}.tgz
