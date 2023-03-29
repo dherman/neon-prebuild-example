@@ -1,6 +1,6 @@
 {
   "name": "neon-prebuild-example",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Example Neon library project with prebuilds for common architectures.",
   "os": ["win32", "darwin", "linux"],
   "cpu": ["x64"],
@@ -15,10 +15,17 @@
   "devDependencies": {
     "cargo-cp-artifact": "^0.1"
   },
+  "neon": {
+    "targets": {
+      "x86_64-pc-windows-msvc": "@neon-prebuild-example/win32-x64-msvc",
+      "x86_64-unknown-linux-gnu": "@neon-prebuild-example/linux-x64-gnu",
+      "x86_64-apple-darwin": "@neon-prebuild-example/darwin-x64"
+    }
+  },
   "optionalDependencies": {
-    "@neon-prebuild-example/darwin-x64": "0.0.2",
-    "@neon-prebuild-example/linux-x64-gnu": "0.0.2",
-    "@neon-prebuild-example/win32-x64-msvc": "0.0.2"
+    "@neon-prebuild-example/darwin-x64": "0.0.3",
+    "@neon-prebuild-example/linux-x64-gnu": "0.0.3",
+    "@neon-prebuild-example/win32-x64-msvc": "0.0.3"
   },
   "repository": {
     "type": "git",
