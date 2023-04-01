@@ -76,6 +76,8 @@ jobs:
         with:
           crate: cross
           version: latest
+      - name: Install Dependencies
+        run: npm install
       - name: Cross
         shell: bash
         run: NEON_TARGET=${{ matrix.target }} npm run cross
