@@ -1,8 +1,6 @@
 name: publish
 
 env:
-  PACKAGE_NAME: neon-prebuild-example
-  PREBUILD_SCOPE: neon-prebuild-example
   NODE_VERSION: 18.x
   NODE_REGISTRY: 'https://registry.npmjs.org'
 
@@ -78,57 +76,15 @@ jobs:
         with:
           crate: cross
           version: latest
-      # - name: Determine Node Platform
-      #   id: platform
-      #   shell: bash
-      #   run: |
-      #     case "${{ matrix.target }}" in
-      #       x86_64-pc-windows-msvc)
-      #         echo "name=win32-x64-msvc" >> $GITHUB_OUTPUT
-      #         ;;
-      #       x86_64-apple-darwin)
-      #         echo "name=darwin-x64" >> $GITHUB_OUTPUT
-      #         ;;
-      #       x86_64-unknown-linux-gnu)
-      #         echo "name=linux-x64-gnu" >> $GITHUB_OUTPUT
-      #         ;;
-      #       *)
-      #         echo "error: unknown Rust target \"${{ matrix.target }}\""
-      #         exit 1
-      #         ;;
-      #     esac
-      - name: Build Artifact
-        run: cross build --target ${{ matrix.target }} --release --message-format=json-render-diagnostics > build.log
-      # - name: Get artifact path
-      #   id: artifact
-      #   uses: dherman/cargo-artifact@v1
-      #   with:
-      #     log: build.log
-      #     name: neon-prebuild-example
-      #     crate_type: cdylib
-      - name: Extract artifact path
-        id: artifact
-        # Ensure consistent command string syntax even in Windows.
+      - name: Cross
         shell: bash
-        # Normalize path separators and strip any absolute path prefix.
-        run: cat build.log | jq -r 'select(.target.kind[0]=="cdylib").filenames[0] | gsub("\\\\"; "/") | sub(".*/target/"; "path=target/")' > $GITHUB_OUTPUT
-      - name: Prebuild
+        run: NEON_TARGET=${{ matrix.target }} npm run cross
+      - name: Pack
         shell: bash
         run: |
           mkdir -p assets
-          tarball=$(npx neon-prebuild ${{ matrix.target }} ${{ steps.artifact.outputs.path }})
+          tarball=$(npx neon-prebuild ${{ matrix.target }} ${{ matrix.target }}.node)
           mv $tarball assets/
-      # - name: Pack Prebuild
-      #   shell: bash
-      #   run: |
-      #     mkdir -p assets
-      #     cp ${{ steps.artifact.outputs.path }} platforms/${{ steps.platform.outputs.name }}/index.node
-      #     cd platforms/${{ steps.platform.outputs.name }}
-      #     npm pack --json=true --pack-destination=../../assets > ../../assets/pack.log
-      #     cd ../../assets
-      #     tarball=$(ls *.tgz)
-      #     json="${tarball%.tgz}.json"
-      #     mv pack.log $json
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -148,29 +104,28 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: ${{ env.NODE_REGISTRY }}
           cache: npm
-      - name: Get tag name
+      - name: Get Tag Name
         uses: olegtarasov/get-tag@v2.1.2
         id: tagName
-      - name: Hello
-        run: |
-          echo "Now let's download '${{ steps.tagName.outputs.tag }}'"
-      - name: Fetch packages
+      - name: Fetch Packages
         uses: robinraju/release-downloader@v1.7
         with:
           tag: ${{ steps.tagName.outputs.tag }}
           fileName: "*.tgz"
           out-file-path: assets
-      - name: Get package version
-        id: version
-        run: echo "number=$(cat package.json | jq -r .version)" > $GITHUB_OUTPUT
-      - name: Publish prebuilds
+      - name: Get Package Metadata
+        id: package
+        run: |
+          echo "version=$(cat package.json | jq -r .version)" > $GITHUB_OUTPUT
+          echo "name=$(cat package.json | jq -r .name)" >> $GITHUB_OUTPUT
+      - name: Publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd assets
           pwd
           ls
-          for p in ${{ env.PACKAGE_NAME }}-*-${{ steps.version.outputs.number }}.tgz; do
+          for p in ${{ steps.package.outputs.name }}-*-${{ steps.package.outputs.version }}.tgz; do
             npm publish --access public $p
           done
-          npm publish ${{ env.PACKAGE_NAME }}-${{ steps.version.outputs.number }}.tgz
+          npm publish ${{ steps.package.outputs.name }}-${{ steps.package.outputs.version }}.tgz

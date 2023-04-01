@@ -13,6 +13,7 @@
   "main": "index.js",
   "scripts": {
     "build": "cargo-cp-artifact -nc debug.node -- cargo build --message-format=json-render-diagnostics",
+    "cross": "cross-env cargo-cp-artifact -nc $NEON_TARGET.node -- cross build --target $NEON_TARGET --release --message-format=json-render-diagnostics",
     "pretest": "npm run build",
     "test": "cargo test",
     "prepack": "neon-prepack"
@@ -20,7 +21,8 @@
   "author": "Dave Herman <david.herman@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "cargo-cp-artifact": "^0.1"
+    "cargo-cp-artifact": "^0.1",
+    "cross-env": "^7.0.3"
   },
   "neon": {
     "prebuilds": {
