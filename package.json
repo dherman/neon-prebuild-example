@@ -17,7 +17,7 @@
     "pretest": "npm run build",
     "test": "cargo test",
     "prepack": "neon-prepack",
-    "version": "git push --follow-tags"
+    "postversion": "git push --follow-tags"
   },
   "author": "Dave Herman <david.herman@gmail.com>",
   "license": "MIT",
