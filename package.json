@@ -16,7 +16,8 @@
     "cross": "cross-env cargo-cp-artifact -nc $NEON_TARGET.node -- cross build --target $NEON_TARGET --release --message-format=json-render-diagnostics",
     "pretest": "npm run build",
     "test": "cargo test",
-    "prepack": "neon-prepack"
+    "prepack": "neon-prepack",
+    "version": "git push --follow-tags"
   },
   "author": "Dave Herman <david.herman@gmail.com>",
   "license": "MIT",
