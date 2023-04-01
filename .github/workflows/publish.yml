@@ -40,20 +40,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - name: Pack Prebuild
+      - name: Pack
         run: |
           mkdir -p assets
-          npm pack --json=true --pack-destination=assets > assets/pack.log
-          cd assets
-          tarball=$(ls *.tgz)
-          json="${tarball%.tgz}.json"
-          mv pack.log $json
+          npm pack --pack-destination=assets
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            assets/*.tgz
-            assets/*.json
+          files: assets/*.tgz
 
   build:
     needs: matrix
@@ -82,25 +76,25 @@ jobs:
         with:
           crate: cross
           version: latest
-      - name: Determine Node Platform
-        id: platform
-        shell: bash
-        run: |
-          case "${{ matrix.target }}" in
-            x86_64-pc-windows-msvc)
-              echo "name=win32-x64-msvc" >> $GITHUB_OUTPUT
-              ;;
-            x86_64-apple-darwin)
-              echo "name=darwin-x64" >> $GITHUB_OUTPUT
-              ;;
-            x86_64-unknown-linux-gnu)
-              echo "name=linux-x64-gnu" >> $GITHUB_OUTPUT
-              ;;
-            *)
-              echo "error: unknown Rust target \"${{ matrix.target }}\""
-              exit 1
-              ;;
-          esac
+      # - name: Determine Node Platform
+      #   id: platform
+      #   shell: bash
+      #   run: |
+      #     case "${{ matrix.target }}" in
+      #       x86_64-pc-windows-msvc)
+      #         echo "name=win32-x64-msvc" >> $GITHUB_OUTPUT
+      #         ;;
+      #       x86_64-apple-darwin)
+      #         echo "name=darwin-x64" >> $GITHUB_OUTPUT
+      #         ;;
+      #       x86_64-unknown-linux-gnu)
+      #         echo "name=linux-x64-gnu" >> $GITHUB_OUTPUT
+      #         ;;
+      #       *)
+      #         echo "error: unknown Rust target \"${{ matrix.target }}\""
+      #         exit 1
+      #         ;;
+      #     esac
       - name: Build Artifact
         run: cross build --target ${{ matrix.target }} --release --message-format=json-render-diagnostics > build.log
       # - name: Get artifact path
@@ -116,23 +110,27 @@ jobs:
         shell: bash
         # Normalize path separators and strip any absolute path prefix.
         run: cat build.log | jq -r 'select(.target.kind[0]=="cdylib").filenames[0] | gsub("\\\\"; "/") | sub(".*/target/"; "path=target/")' > $GITHUB_OUTPUT
-      - name: Pack Prebuild
+      - name: Prebuild
         shell: bash
         run: |
           mkdir -p assets
-          cp ${{ steps.artifact.outputs.path }} platforms/${{ steps.platform.outputs.name }}/index.node
-          cd platforms/${{ steps.platform.outputs.name }}
-          npm pack --json=true --pack-destination=../../assets > ../../assets/pack.log
-          cd ../../assets
-          tarball=$(ls *.tgz)
-          json="${tarball%.tgz}.json"
-          mv pack.log $json
+          tarball=$(npx neon-prebuild ${{ matrix.target }} ${{ steps.artifact.outputs.path }})
+          mv $tarball assets/
+      # - name: Pack Prebuild
+      #   shell: bash
+      #   run: |
+      #     mkdir -p assets
+      #     cp ${{ steps.artifact.outputs.path }} platforms/${{ steps.platform.outputs.name }}/index.node
+      #     cd platforms/${{ steps.platform.outputs.name }}
+      #     npm pack --json=true --pack-destination=../../assets > ../../assets/pack.log
+      #     cd ../../assets
+      #     tarball=$(ls *.tgz)
+      #     json="${tarball%.tgz}.json"
+      #     mv pack.log $json
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            assets/*.tgz
-            assets/*.json
+          files: assets/*.tgz
 
   publish:
     needs: [pack, build]
