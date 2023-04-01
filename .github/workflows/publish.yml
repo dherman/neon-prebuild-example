@@ -40,6 +40,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
+      - name: Install Dependencies
+        run: npm install
       - name: Pack
         run: |
           mkdir -p assets
