@@ -2,13 +2,20 @@
   "name": "neon-prebuild-example",
   "version": "0.0.4",
   "description": "Example Neon library project with prebuilds for common architectures.",
-  "os": ["win32", "darwin", "linux"],
-  "cpu": ["x64"],
+  "os": [
+    "win32",
+    "darwin",
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
   "main": "index.js",
   "scripts": {
     "build": "cargo-cp-artifact -nc debug.node -- cargo build --message-format=json-render-diagnostics",
     "pretest": "npm run build",
-    "test": "cargo test"
+    "test": "cargo test",
+    "prepack": "neon-prepack"
   },
   "author": "Dave Herman <david.herman@gmail.com>",
   "license": "MIT",
@@ -16,16 +23,11 @@
     "cargo-cp-artifact": "^0.1"
   },
   "neon": {
-    "targets": {
+    "prebuilds": {
       "x86_64-pc-windows-msvc": "@neon-prebuild-example/win32-x64-msvc",
       "x86_64-unknown-linux-gnu": "@neon-prebuild-example/linux-x64-gnu",
       "x86_64-apple-darwin": "@neon-prebuild-example/darwin-x64"
     }
-  },
-  "optionalDependencies": {
-    "@neon-prebuild-example/darwin-x64": "0.0.4",
-    "@neon-prebuild-example/linux-x64-gnu": "0.0.4",
-    "@neon-prebuild-example/win32-x64-msvc": "0.0.4"
   },
   "repository": {
     "type": "git",
@@ -38,5 +40,8 @@
   "bugs": {
     "url": "https://github.com/dherman/neon-prebuild-example/issues"
   },
-  "homepage": "https://github.com/dherman/neon-prebuild-example#readme"
+  "homepage": "https://github.com/dherman/neon-prebuild-example#readme",
+  "dependencies": {
+    "neon-prebuild": "^0.0.5"
+  }
 }

@@ -9,6 +9,5 @@
 return;
 
 require('@neon-prebuild-example/win32-x64-msvc');
-require('@neon-prebuild-example/darwin-x64');
 require('@neon-prebuild-example/linux-x64-gnu');
-require('@neon-prebuild-example/linux-x64-musl');
+require('@neon-prebuild-example/darwin-x64');
