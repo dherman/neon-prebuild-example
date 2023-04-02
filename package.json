@@ -13,7 +13,8 @@
   "main": "index.js",
   "scripts": {
     "build": "cargo build --message-format=json | ./neon-artifact.js debug.node",
-    "cross": "cross -v build --message-format=json --release | ./neon-artifact.js -r cross.node",
+    "precross": "cross -v build --message-format=json --release",
+    "cross": "cross build --message-format=json --release | ./neon-artifact.js -r cross.node",
     "pretest": "npm run build",
     "test": "cargo test",
     "prepack": "neon-prepack",
