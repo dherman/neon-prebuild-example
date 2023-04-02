@@ -12,8 +12,8 @@
   ],
   "main": "index.js",
   "scripts": {
-    "build": "cargo build --message-format=json | ./neon-dist.js",
-    "cross": "cross build --message-format=json --release | ./neon-dist.js --from-cross",
+    "build": "cargo build --message-format=json | neon-dist",
+    "cross": "cross build --message-format=json --release | neon-dist --from-cross",
     "pretest": "npm run build",
     "test": "cargo test",
     "prepack": "neon-prepack",
@@ -44,6 +44,6 @@
   },
   "homepage": "https://github.com/dherman/neon-prebuild-example#readme",
   "dependencies": {
-    "neon-prebuild": "^0.0.6"
+    "neon-prebuild": "^0.0.7"
   }
 }
