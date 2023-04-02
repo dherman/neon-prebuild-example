@@ -1,6 +1,5 @@
 src
-platforms
 Cargo.lock
 Cargo.toml
-assets
+release
 .github

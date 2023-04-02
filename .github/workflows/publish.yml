@@ -42,12 +42,12 @@ jobs:
         run: npm install
       - name: Pack
         run: |
-          mkdir -p assets
-          npm pack --pack-destination=assets
+          mkdir -p release
+          npm pack --pack-destination=release
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: assets/*.tgz
+          files: release/*.tgz
 
   build:
     needs: matrix
@@ -80,17 +80,17 @@ jobs:
         run: npm install
       - name: Cross
         shell: bash
-        run: NEON_TARGET=${{ matrix.target }} npm run cross
+        run: CARGO_BUILD_TARGET=${{ matrix.target }} npm run cross
       - name: Pack
         shell: bash
         run: |
-          mkdir -p assets
-          tarball=$(npx neon-prebuild ${{ matrix.target }} ${{ matrix.target }}.node)
-          mv $tarball assets/
+          mkdir -p release
+          tarball=$(npx neon-prebuild ${{ matrix.target }} cross.node)
+          mv $tarball release/
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: assets/*.tgz
+          files: release/*.tgz
 
   publish:
     needs: [pack, build]
@@ -114,7 +114,7 @@ jobs:
         with:
           tag: ${{ steps.tagName.outputs.tag }}
           fileName: "*.tgz"
-          out-file-path: assets
+          out-file-path: release
       - name: Get Package Metadata
         id: package
         run: |
@@ -124,7 +124,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          cd assets
+          cd release
           pwd
           ls
           for p in ${{ steps.package.outputs.name }}-*-${{ steps.package.outputs.version }}.tgz; do
