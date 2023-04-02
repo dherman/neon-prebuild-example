@@ -56,7 +56,11 @@ function die(msg) {
 function normalize(abs) {
   const result = child.spawnSync("cross", ["metadata", "--format-version=1", "--no-deps"]);
   const metadata = JSON.parse(result.stdout);
+  console.error("metadata:");
+  console.error(metadata);
   const rel = path.relative(metadata.workspace_root, abs);
+  console.error(`absolute path: ${abs}`);
+  console.error(`relativized path: ${rel}`);
   return rel;
 }
 
