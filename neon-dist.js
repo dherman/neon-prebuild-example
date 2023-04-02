@@ -58,7 +58,7 @@ function normalize(abs) {
   const metadata = JSON.parse(result.stdout);
   console.error("metadata:");
   console.error(metadata);
-  const rel = path.relative(metadata.workspace_root, abs);
+  const rel = path.relative(path.dirname(metadata.target_directory), abs);
   console.error(`absolute path: ${abs}`);
   console.error(`relativized path: ${rel}`);
   return rel;
