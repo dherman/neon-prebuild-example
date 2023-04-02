@@ -30,7 +30,7 @@ function parseArgs() {
   }
 
   if (!outfile) {
-    throw new Error("no output file provided");
+    outfile = "index.node";
   }
 
   if (!crateName) {
@@ -41,9 +41,9 @@ function parseArgs() {
 }
 
 function usage() {
-  console.error("usage: neon-dist [options] <outfile>");
+  console.error("usage: neon-dist [options] [<outfile>]");
   console.error("  --from-cross  normalize paths from cross-rs output");
-  console.error("  <outfile>     output file to copy artifact to");
+  console.error("  <outfile>     output file to copy artifact to (default: index.node)");
 }
 
 function die(msg) {

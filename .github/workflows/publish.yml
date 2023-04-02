@@ -85,7 +85,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p release
-          tarball=$(npx neon-prebuild ${{ matrix.target }} cross.node)
+          tarball=$(npx neon-prebuild ${{ matrix.target }} index.node)
           mv $tarball release/
       - name: Release
         uses: softprops/action-gh-release@v1
