@@ -2,6 +2,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const child = require('child_process');
 const toString = require('stream-to-string');
 
 // FIXME: more opts:
@@ -11,13 +12,13 @@ const toString = require('stream-to-string');
 function parseArgs() {
   const [ _node, _script, ...args ] = process.argv;
 
-  let relative = false;
+  let fromCross = false;
   let outfile = null;
   let crateName = null;
 
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === "-r" || args[i] === "--relative") {
-      relative = true;
+    if (args[i] === "--from-cross") {
+      fromCross = true;
       continue;
     }
 
@@ -36,13 +37,13 @@ function parseArgs() {
     crateName = require(path.join(process.cwd(), "package.json")).name;
   }
 
-  return { relative, outfile, crateName };
+  return { fromCross, outfile, crateName };
 }
 
 function usage() {
-  console.error("usage: neon-artifact [options] <outfile>");
-  console.error("  -r|--relative   interpret artifact path relative to manifest");
-  console.error("  <outfile>       output file to copy artifact to");
+  console.error("usage: neon-dist [options] <outfile>");
+  console.error("  --from-cross  normalize paths from cross-rs output");
+  console.error("  <outfile>     output file to copy artifact to");
 }
 
 function die(msg) {
@@ -50,6 +51,13 @@ function die(msg) {
   console.error();
   console.error(msg);
   process.exit(1);
+}
+
+function normalize(abs) {
+  const result = child.spawnSync("cross", ["metadata", "--format-version=1", "--no-deps"]);
+  const metadata = JSON.parse(result.stdout);
+  const rel = path.relative(metadata.workspace_root, abs);
+  return rel;
 }
 
 function processCargoMetadata(metadata, opts) {
@@ -73,10 +81,7 @@ function processCargoMetadata(metadata, opts) {
   console.error(`dirname(manifest_path)=${path.dirname(sub.manifest_path)}`);
   console.error(`abs=${abs}`);
 
-  const filename = opts.relative
-    ? path.relative(path.dirname(sub.manifest_path), abs)
-    : abs;
-
+  const filename = opts.fromCross ? normalize(abs) : abs;
 
   // FIXME: needs all the logic of cargo-cp-artifact (timestamp check, M1 workaround, async, errors)
   fs.copyFileSync(filename, opts.outfile);
