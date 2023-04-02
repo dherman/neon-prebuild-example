@@ -69,6 +69,10 @@ function processCargoMetadata(metadata, opts) {
 
   const abs = sub.filenames[index];
 
+  console.error(`manifest_path=${sub.manifest_path}`);
+  console.error(`dirname(manifest_path)=${path.dirname(sub.manifest_path)}`);
+  console.error(`abs=${abs}`);
+
   const filename = opts.relative
     ? path.relative(path.dirname(sub.manifest_path), abs)
     : abs;
