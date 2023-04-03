@@ -13,7 +13,7 @@
   "main": "index.js",
   "scripts": {
     "build": "cargo build --message-format=json | neon-dist",
-    "cross": "cross build --message-format=json --release | neon-dist --from-cross",
+    "cross": "cross build --message-format=json --release",
     "pretest": "npm run build",
     "test": "cargo test",
     "prepack": "neon-prepack",
@@ -26,9 +26,7 @@
   },
   "neon": {
     "prebuilds": {
-      "x86_64-pc-windows-msvc": "@neon-prebuild-example/win32-x64-msvc",
-      "x86_64-unknown-linux-gnu": "@neon-prebuild-example/linux-x64-gnu",
-      "x86_64-apple-darwin": "@neon-prebuild-example/darwin-x64"
+      "x86_64-pc-windows-msvc": "@neon-prebuild-example/win32-x64-msvc"
     }
   },
   "repository": {

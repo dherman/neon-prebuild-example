@@ -23,8 +23,8 @@ jobs:
         with:
           toolchain: rust
           windows-latest: x86_64-pc-windows-msvc
-          macos-latest: x86_64-apple-darwin
-          ubuntu-latest: x86_64-unknown-linux-gnu
+          #macos-latest: x86_64-apple-darwin
+          #ubuntu-latest: x86_64-unknown-linux-gnu
 
   pack:
     runs-on: ubuntu-latest
