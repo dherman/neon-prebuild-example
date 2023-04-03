@@ -44,6 +44,6 @@
   },
   "homepage": "https://github.com/dherman/neon-prebuild-example#readme",
   "dependencies": {
-    "neon-prebuild": "^0.0.9"
+    "neon-prebuild": "^0.0.10"
   }
 }
