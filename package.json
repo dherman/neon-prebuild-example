@@ -14,7 +14,7 @@
   "scripts": {
     "neon-dist": "neon-dist",
     "build": "cargo build --message-format=json | neon-dist",
-    "cross:windows-latest": "cross build --message-format=json --release | npm run neon-dist -- --from-cross",
+    "cross:windows-latest": "cross build --message-format=json --release | neon-dist.cmd -- --from-cross",
     "cross:ubuntu-latest": "cross build --message-format=json --release | neon-dist --from-cross",
     "cross:macos-latest": "cross build --message-format=json --release | neon-dist --from-cross",
     "pretest": "npm run build",
