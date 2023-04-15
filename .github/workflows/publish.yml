@@ -78,10 +78,10 @@ jobs:
           version: latest
       - name: Install Dependencies
         run: npm install
-      - name: Cross
+      - name: Cross-Compile
         env:
           CARGO_BUILD_TARGET: ${{ matrix.target }}
-        run: npm run cross:${{ matrix.os }}
+        run: npm run cross
       - name: Pack
         shell: bash
         run: |
