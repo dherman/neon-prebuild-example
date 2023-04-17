@@ -40,6 +40,8 @@ jobs:
           cache: npm
       - name: Install Dependencies
         run: npm install
+      - name: Smoke Test
+        run: npm run smoke-test
       - name: Pack
         run: |
           mkdir -p dist
