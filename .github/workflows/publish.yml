@@ -40,6 +40,12 @@ jobs:
           cache: npm
       - name: Install Dependencies
         run: npm install
+      - name: Where Am I What Is Reality Even
+        run: |
+          pwd
+          ls -al
+          ls -al node_modules/
+          ls -al node_modules/.bin
       - name: Smoke Test
         run: npm run smoke-test
       - name: Pack
