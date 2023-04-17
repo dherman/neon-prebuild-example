@@ -12,21 +12,17 @@
   ],
   "main": "index.js",
   "scripts": {
-    "neon-dist": "neon-dist",
-    "build": "cargo build --message-format=json | neon-dist",
-    "cross": "cross build --message-format=json --release | neon-dist --from-cross",
-    "pretest": "npm run build",
     "test": "cargo test",
-    "prepack": "neon-prepack",
+    "build": "cargo build --message-format=json | neon dist",
+    "cross-build": "cross build --message-format=json --release | neon cross-dist",
+    "cross-pack": "neon cross-pack",
+    "prepack": "neon cross-install",
     "postversion": "git push --follow-tags"
   },
   "author": "Dave Herman <david.herman@gmail.com>",
   "license": "MIT",
-  "devDependencies": {
-    "stream-to-string": "^1.2.1"
-  },
   "neon": {
-    "prebuilds": {
+    "targets": {
       "x86_64-pc-windows-msvc": "@neon-prebuild-example/win32-x64-msvc",
       "x86_64-unknown-linux-gnu": "@neon-prebuild-example/linux-x64-gnu",
       "x86_64-apple-darwin": "@neon-prebuild-example/darwin-x64"
@@ -45,6 +41,9 @@
   },
   "homepage": "https://github.com/dherman/neon-prebuild-example#readme",
   "dependencies": {
-    "neon-prebuild": "^0.0.16"
+    "@neon-rs/load": "^0.0.1"
+  },
+  "devDependencies": {
+    "@neon-rs/cli": "^0.0.1"
   }
 }

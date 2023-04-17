@@ -1,7 +1,7 @@
-const { debug, target } = require('neon-prebuild');
+const { debug, currentTarget } = require('@neon-rs/load');
 
 // Static requires for bundlers.
-if (0) { require('./.prebuilds'); }
+if (0) { require('./.targets'); }
 
 // Dynamic require for runtime.
-module.exports = debug(__dirname) || require(`@neon-prebuild-example/${target()}`);
+module.exports = debug(__dirname) || require(`@neon-prebuild-example/${currentTarget()}`);
