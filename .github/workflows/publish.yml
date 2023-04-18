@@ -33,6 +33,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+      - name: What Manifest Is This Anyway
+        run: cat package.json
       - name: Install Node
         uses: actions/setup-node@v3
         with:
