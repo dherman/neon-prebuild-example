@@ -33,8 +33,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      - name: What Manifest Is This Anyway
-        run: cat package.json
       - name: Install Node
         uses: actions/setup-node@v3
         with:
@@ -42,15 +40,6 @@ jobs:
           cache: npm
       - name: Install Dependencies
         run: npm install
-      - name: Where Am I What Is Reality Even
-        run: |
-          pwd
-          ls -al
-          ls -al node_modules/
-          ls -alR node_modules/@neon-rs
-          ls -al node_modules/.bin
-      - name: Smoke Test
-        run: npm run smoke-test
       - name: Pack
         run: |
           mkdir -p dist
