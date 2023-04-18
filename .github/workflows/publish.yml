@@ -47,7 +47,7 @@ jobs:
           pwd
           ls -al
           ls -al node_modules/
-          ls -alR node_modules/@node-rs
+          ls -alR node_modules/@neon-rs
           ls -al node_modules/.bin
       - name: Smoke Test
         run: npm run smoke-test
