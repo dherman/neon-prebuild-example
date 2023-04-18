@@ -41,12 +41,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - name: Install Dependencies
-        run: npm ci
+        run: npm install --bin-links=true
       - name: Where Am I What Is Reality Even
         run: |
           pwd
           ls -al
           ls -al node_modules/
+          ls -alR node_modules/@node-rs
           ls -al node_modules/.bin
       - name: Smoke Test
         run: npm run smoke-test
