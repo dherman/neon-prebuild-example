@@ -41,10 +41,10 @@
     "url": "https://github.com/dherman/neon-prebuild-example/issues"
   },
   "homepage": "https://github.com/dherman/neon-prebuild-example#readme",
-  "dependencies": {
-    "@neon-rs/load": "^0.0.1"
-  },
   "devDependencies": {
     "@neon-rs/cli": "^0.0.1"
+  },
+  "dependencies": {
+    "@neon-rs/load": "^0.0.1"
   }
 }

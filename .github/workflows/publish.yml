@@ -41,7 +41,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - name: Install Dependencies
-        run: npm install --bin-links=true
+        run: npm install
       - name: Where Am I What Is Reality Even
         run: |
           pwd
