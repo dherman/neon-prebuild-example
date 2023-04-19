@@ -17,8 +17,7 @@
     "cross-build": "cross build --message-format=json --release | neon cross-dist",
     "cross-pack": "neon cross-pack",
     "prepack": "neon cross-install",
-    "postversion": "git push --follow-tags",
-    "smoke-test": "neon help cross-install"
+    "postversion": "git push --follow-tags"
   },
   "author": "Dave Herman <david.herman@gmail.com>",
   "license": "MIT",
