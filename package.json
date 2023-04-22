@@ -13,10 +13,10 @@
   "main": "index.js",
   "scripts": {
     "test": "cargo test",
-    "build": "cargo build --message-format=json | neon dist",
-    "cross-build": "cross build --message-format=json --release | neon cross-dist",
-    "cross-pack": "neon cross-pack",
-    "prepack": "neon cross-install",
+    "build": "cargo build --message-format=json --release | neon dist",
+    "cross": "cross build --message-format=json --release | neon dist -m /target",
+    "pack-build": "neon pack-build",
+    "prepack": "neon install-builds",
     "postversion": "git push --follow-tags"
   },
   "author": "Dave Herman <david.herman@gmail.com>",
@@ -41,9 +41,9 @@
   },
   "homepage": "https://github.com/dherman/neon-prebuild-example#readme",
   "devDependencies": {
-    "@neon-rs/cli": "^0.0.1"
+    "@neon-rs/cli": "^0.0.3"
   },
   "dependencies": {
-    "@neon-rs/load": "^0.0.1"
+    "@neon-rs/load": "^0.0.3"
   }
 }

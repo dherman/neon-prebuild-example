@@ -12,20 +12,6 @@ on:
       - v*
 
 jobs:
-  matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      include: ${{ steps.define.outputs.include }}
-    steps:
-      - name: Define Target Matrix
-        id: define
-        uses: dherman/target-matrix@v0.0.2
-        with:
-          toolchain: rust
-          windows-latest: x86_64-pc-windows-msvc
-          macos-latest: x86_64-apple-darwin
-          ubuntu-latest: x86_64-unknown-linux-gnu
-
   pack:
     runs-on: ubuntu-latest
     permissions:
@@ -50,13 +36,43 @@ jobs:
           files: dist/*.tgz
 
   build:
-    needs: matrix
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Install Dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Pack
+        run: npm run pack-build
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.tgz
+
+  cross:
     strategy:
       matrix:
-        include: ${{ fromJson(needs.matrix.outputs.include) }}
+        target: [x86_64-unknown-linux-gnu]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -81,16 +97,16 @@ jobs:
       - name: Cross-Compile
         env:
           CARGO_BUILD_TARGET: ${{ matrix.target }}
-        run: npm run cross-build
+        run: npm run cross
       - name: Pack
-        run: npm run cross-pack -- ${{ matrix.target }}
+        run: npm run pack-build -- --target ${{ matrix.target }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: dist/*.tgz
 
   publish:
-    needs: [pack, build]
+    needs: [pack, build, cross]
     runs-on: ubuntu-latest
     permissions:
       contents: write
