@@ -41,9 +41,9 @@
   },
   "homepage": "https://github.com/dherman/neon-prebuild-example#readme",
   "devDependencies": {
-    "@neon-rs/cli": "^0.0.3"
+    "@neon-rs/cli": "^0.0.4"
   },
   "dependencies": {
-    "@neon-rs/load": "^0.0.3"
+    "@neon-rs/load": "^0.0.4"
   }
 }
