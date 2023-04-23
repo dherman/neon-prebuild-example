@@ -91,7 +91,7 @@ jobs:
           target: ${{ matrix.target }}
           override: true
       - name: Install cross-rs
-        uses: baptiste0928/cargo-install
+        uses: baptiste0928/cargo-install@v2
         with:
           crate: cross
       - name: Install Dependencies
