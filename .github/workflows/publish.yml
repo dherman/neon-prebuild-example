@@ -36,6 +36,38 @@ jobs:
         with:
           files: dist/*.tgz
 
+  m1:
+    name: Build (M1 macOS)
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-apple-darwin
+          override: true
+      - name: Install Dependencies
+        run: npm install
+      - name: Build
+        env:
+          CARGO_BUILD_TARGET: aarch64-apple-darwin
+        run: npm run build
+      - name: Pack
+        run: npm run pack-build -- --target aarch64-apple-darwin
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.tgz
+
   build:
     name: Builds (private OSes)
     strategy:
@@ -109,7 +141,7 @@ jobs:
 
   publish:
     name: Publish
-    needs: [pack, build, cross]
+    needs: [pack, m1, build, cross]
     runs-on: ubuntu-latest
     permissions:
       contents: write
