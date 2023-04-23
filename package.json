@@ -1,6 +1,6 @@
 {
   "name": "neon-prebuild-example",
-  "version": "0.0.49",
+  "version": "0.0.50",
   "description": "Example Neon library project with prebuilds for common architectures.",
   "os": [
     "win32",
