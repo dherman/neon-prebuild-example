@@ -91,10 +91,9 @@ jobs:
           target: ${{ matrix.target }}
           override: true
       - name: Install cross-rs
-        uses: actions-rs/install@v0.1.2
+        uses: baptiste0928/cargo-install
         with:
           crate: cross
-          version: latest
       - name: Install Dependencies
         run: npm install
       - name: Cross-Compile

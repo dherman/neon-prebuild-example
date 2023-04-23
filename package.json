@@ -13,6 +13,7 @@
   "main": "index.js",
   "scripts": {
     "test": "cargo test",
+    "debug": "cargo build --message-format=json | neon dist",
     "build": "cargo build --message-format=json --release | neon dist",
     "cross": "cross build --message-format=json --release | neon dist -m /target",
     "pack-build": "neon pack-build",
