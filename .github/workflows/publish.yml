@@ -36,8 +36,11 @@ jobs:
         with:
           files: dist/*.tgz
 
-  m1:
-    name: Build (M1 macOS)
+  macOS:
+    name: Builds (macOS)
+    strategy:
+      matrix:
+        target: [x86_64-apple-darwin, aarch64-apple-darwin]
     runs-on: macos-latest
     permissions:
       contents: write
@@ -53,27 +56,24 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: aarch64-apple-darwin
+          target: ${{ matrix.target }}
           override: true
       - name: Install Dependencies
         run: npm install
       - name: Build
         env:
-          CARGO_BUILD_TARGET: aarch64-apple-darwin
+          CARGO_BUILD_TARGET: ${{ matrix.target }}
         run: npm run build
       - name: Pack
-        run: npm run pack-build -- --target aarch64-apple-darwin
+        run: npm run pack-build -- --target ${{ matrix.target }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: dist/*.tgz
 
-  build:
-    name: Builds (private OSes)
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+  windows:
+    name: Builds (Windows)
+    runs-on: windows-latest
     permissions:
       contents: write
     steps:
@@ -101,7 +101,7 @@ jobs:
           files: dist/*.tgz
 
   cross:
-    name: Builds (public OSes)
+    name: Builds (all other platforms)
     strategy:
       matrix:
         target: [x86_64-unknown-linux-gnu, armv7-linux-androideabi, armv7-unknown-linux-gnueabihf]
