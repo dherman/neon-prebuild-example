@@ -101,7 +101,7 @@ jobs:
           files: dist/*.tgz
 
   other-builds:
-    name: Builds (all other platforms)
+    name: Builds (other platforms)
     strategy:
       matrix:
         target: [x86_64-unknown-linux-gnu, armv7-linux-androideabi, armv7-unknown-linux-gnueabihf]
