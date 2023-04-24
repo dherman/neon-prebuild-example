@@ -36,7 +36,7 @@ jobs:
         with:
           files: dist/*.tgz
 
-  macOS:
+  macos-builds:
     name: Builds (macOS)
     strategy:
       matrix:
@@ -71,7 +71,7 @@ jobs:
         with:
           files: dist/*.tgz
 
-  windows:
+  windows-builds:
     name: Builds (Windows)
     runs-on: windows-latest
     permissions:
@@ -100,7 +100,7 @@ jobs:
         with:
           files: dist/*.tgz
 
-  cross:
+  other-builds:
     name: Builds (all other platforms)
     strategy:
       matrix:
@@ -141,7 +141,7 @@ jobs:
 
   publish:
     name: Publish
-    needs: [pack, m1, build, cross]
+    needs: [pack, macos-builds, windows-builds, other-builds]
     runs-on: ubuntu-latest
     permissions:
       contents: write
