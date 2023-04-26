@@ -19,7 +19,7 @@ jobs:
       contents: write
     steps:
       - name: Pack
-        uses: neon-actions/pack@v1
+        uses: neon-actions/pack@v0.0.1
         with:
           dir: dist
           node-version: ${{ env.NODE_VERSION }}
