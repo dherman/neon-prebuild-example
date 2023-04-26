@@ -33,7 +33,7 @@ jobs:
       contents: write
     steps:
       - name: Build
-        uses: neon-actions/build@v0.0.1
+        uses: neon-actions/build@v0.0.2
         with:
           target: ${{ matrix.target }}
           node-version: ${{ env.NODE_VERSION }}
