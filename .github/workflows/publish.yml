@@ -40,12 +40,22 @@ jobs:
           npm-publish: false
           github-release: true
 
-  # macos-builds:
-  #   name: Builds (macOS)
-  #   strategy:
-  #     matrix:
-  #       target: [x86_64-apple-darwin, aarch64-apple-darwin]
-  #   runs-on: macos-latest
+  windows-builds:
+    name: Builds (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Build
+        uses: neon-actions/build@v0.0.3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          npm-publish: false
+          github-release: true
+
+  # windows-builds:
+  #   name: Builds (Windows)
+  #   runs-on: windows-latest
   #   permissions:
   #     contents: write
   #   steps:
@@ -60,33 +70,17 @@ jobs:
   #       uses: actions-rs/toolchain@v1
   #       with:
   #         toolchain: stable
-  #         target: ${{ matrix.target }}
   #         override: true
   #     - name: Install Dependencies
   #       run: npm install
   #     - name: Build
-  #       env:
-  #         CARGO_BUILD_TARGET: ${{ matrix.target }}
   #       run: npm run build
   #     - name: Pack
-  #       run: npm run pack-build -- --target ${{ matrix.target }}
+  #       run: npm run pack-build
   #     - name: Release
   #       uses: softprops/action-gh-release@v1
   #       with:
   #         files: dist/*.tgz
-
-  # windows-builds:
-  #   name: Builds (Windows)
-  #   runs-on: windows-latest
-  #   permissions:
-  #     contents: write
-  #   steps:
-  #     - name: Build
-  #       uses: neon-actions/build@v1
-  #       with:
-  #         node-version: ${{ env.NODE_VERSION }}
-  #         npm-publish: false
-  #         github-release: true
 
   # other-builds:
   #   name: Builds (other platforms)
@@ -106,34 +100,6 @@ jobs:
   #         npm-publish: false
   #         github-release: true
 
-  windows-builds:
-    name: Builds (Windows)
-    runs-on: windows-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - name: Install Dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
-      - name: Pack
-        run: npm run pack-build
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*.tgz
 
   other-builds:
     name: Builds (other platforms)
