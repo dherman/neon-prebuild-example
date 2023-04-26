@@ -18,23 +18,92 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - name: Install Dependencies
-        run: npm install
       - name: Pack
-        run: |
-          mkdir -p dist
-          npm pack --pack-destination=dist
-      - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: neon-actions/pack@v1
         with:
-          files: dist/*.tgz
+          dir: dist
+          node-version: ${{ env.NODE_VERSION }}
+          github-release: true
+
+  # - name: Checkout Code
+  #   uses: actions/checkout@v3
+  # - name: Install Node
+  #   uses: actions/setup-node@v3
+  #   with:
+  #     node-version: ${{ env.NODE_VERSION }}
+  #     cache: npm
+  # - name: Install Dependencies
+  #   run: npm install
+  # - name: Pack
+  #   run: |
+  #     mkdir -p dist
+  #     npm pack --pack-destination=dist
+  # - name: Release
+  #   uses: softprops/action-gh-release@v1
+  #   with:
+  #     files: dist/*.tgz
+
+  # macos-builds:
+  #   name: Builds (macOS)
+  #   strategy:
+  #     matrix:
+  #       target: [x86_64-apple-darwin, aarch64-apple-darwin]
+  #   runs-on: macos-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Build
+  #       uses: neon-actions/build@v1
+  #       with:
+  #         target: ${{ matrix.target }}
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         npm-publish: false
+  #         github-release: true
+
+  # windows-builds:
+  #   name: Builds (Windows)
+  #   runs-on: windows-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Build
+  #       uses: neon-actions/build@v1
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         npm-publish: false
+  #         github-release: true
+
+  # other-builds:
+  #   name: Builds (other platforms)
+  #   strategy:
+  #     matrix:
+  #       target: [x86_64-unknown-linux-gnu, armv7-linux-androideabi, armv7-unknown-linux-gnueabihf]
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Build
+  #       uses: neon-actions/build@v1
+  #       with:
+  #         target: ${{ matrix.target }}
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         use-cross: true
+  #         npm-publish: false
+  #         github-release: true
+
+  # publish:
+  #   name: Publish
+  #   needs: [pack, macos-builds, windows-builds, other-builds]
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Publish
+  #       uses: neon-actions/publish@v1
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  #       with:
+  #         github-release: "*.tgz"
 
   macos-builds:
     name: Builds (macOS)
