@@ -42,6 +42,9 @@ jobs:
 
   windows-builds:
     name: Builds (Windows)
+    strategy:
+      matrix:
+        target: [x86_64-pc-windows-msvc, aarch64-pc-windows-msvc]
     runs-on: windows-latest
     permissions:
       contents: write
@@ -49,6 +52,7 @@ jobs:
       - name: Build
         uses: neon-actions/build@v0.0.4
         with:
+          target: ${{ matrix.target }}
           node-version: ${{ env.NODE_VERSION }}
           npm-publish: false
           github-release: true
