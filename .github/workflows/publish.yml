@@ -33,7 +33,7 @@ jobs:
       contents: write
     steps:
       - name: Build
-        uses: neon-actions/build@v0.0.3
+        uses: neon-actions/build@v0.0.4
         with:
           target: ${{ matrix.target }}
           node-version: ${{ env.NODE_VERSION }}
@@ -47,15 +47,36 @@ jobs:
       contents: write
     steps:
       - name: Build
-        uses: neon-actions/build@v0.0.3
+        uses: neon-actions/build@v0.0.4
         with:
           node-version: ${{ env.NODE_VERSION }}
           npm-publish: false
           github-release: true
 
-  # windows-builds:
-  #   name: Builds (Windows)
-  #   runs-on: windows-latest
+  other-builds:
+    name: Builds (other platforms)
+    strategy:
+      matrix:
+        target: [x86_64-unknown-linux-gnu, armv7-linux-androideabi, armv7-unknown-linux-gnueabihf]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Build
+        uses: neon-actions/build@v0.0.4
+        with:
+          target: ${{ matrix.target }}
+          node-version: ${{ env.NODE_VERSION }}
+          use-cross: true
+          npm-publish: false
+          github-release: true
+
+  # other-builds:
+  #   name: Builds (other platforms)
+  #   strategy:
+  #     matrix:
+  #       target: [x86_64-unknown-linux-gnu, armv7-linux-androideabi, armv7-unknown-linux-gnueabihf]
+  #   runs-on: ubuntu-latest
   #   permissions:
   #     contents: write
   #   steps:
@@ -70,75 +91,24 @@ jobs:
   #       uses: actions-rs/toolchain@v1
   #       with:
   #         toolchain: stable
+  #         target: ${{ matrix.target }}
   #         override: true
+  #     - name: Install cross-rs
+  #       uses: baptiste0928/cargo-install@v2
+  #       with:
+  #         crate: cross
   #     - name: Install Dependencies
   #       run: npm install
-  #     - name: Build
-  #       run: npm run build
+  #     - name: Cross-Compile
+  #       env:
+  #         CARGO_BUILD_TARGET: ${{ matrix.target }}
+  #       run: npm run cross
   #     - name: Pack
-  #       run: npm run pack-build
+  #       run: npm run pack-build -- --target ${{ matrix.target }}
   #     - name: Release
   #       uses: softprops/action-gh-release@v1
   #       with:
   #         files: dist/*.tgz
-
-  # other-builds:
-  #   name: Builds (other platforms)
-  #   strategy:
-  #     matrix:
-  #       target: [x86_64-unknown-linux-gnu, armv7-linux-androideabi, armv7-unknown-linux-gnueabihf]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: write
-  #   steps:
-  #     - name: Build
-  #       uses: neon-actions/build@v1
-  #       with:
-  #         target: ${{ matrix.target }}
-  #         node-version: ${{ env.NODE_VERSION }}
-  #         use-cross: true
-  #         npm-publish: false
-  #         github-release: true
-
-
-  other-builds:
-    name: Builds (other platforms)
-    strategy:
-      matrix:
-        target: [x86_64-unknown-linux-gnu, armv7-linux-androideabi, armv7-unknown-linux-gnueabihf]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
-      - name: Install cross-rs
-        uses: baptiste0928/cargo-install@v2
-        with:
-          crate: cross
-      - name: Install Dependencies
-        run: npm install
-      - name: Cross-Compile
-        env:
-          CARGO_BUILD_TARGET: ${{ matrix.target }}
-        run: npm run cross
-      - name: Pack
-        run: npm run pack-build -- --target ${{ matrix.target }}
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*.tgz
 
   publish:
     name: Publish
