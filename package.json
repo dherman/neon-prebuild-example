@@ -26,6 +26,7 @@
   "neon": {
     "targets": {
       "x86_64-pc-windows-msvc": "@neon-prebuild-example/win32-x64-msvc",
+      "aarch64-pc-windows-msvc": "@neon-prebuild-example/win32-arm64-msvc",
       "x86_64-apple-darwin": "@neon-prebuild-example/darwin-x64",
       "aarch64-apple-darwin": "@neon-prebuild-example/darwin-arm64",
       "x86_64-unknown-linux-gnu": "@neon-prebuild-example/linux-x64-gnu",
